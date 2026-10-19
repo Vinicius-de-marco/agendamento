@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Ambiente virtual
+.venv/
+venv/
+env/
+
+# Segredos
+.env
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+*.log
+/staticfiles/
+/media/
+
+# Editores / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Maestri (configuração local dos agentes)
+.maestri/
