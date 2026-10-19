@@ -1,0 +1,27 @@
+{# Trocado inteiro pelo HTMX ao escolher outro dia #}
+<h2 class="mb-3 text-lg font-semibold">Escolha o dia</h2>
+<nav class="flex gap-2 overflow-x-auto pb-2" hx-target="#horarios" hx-push-url="true">
+  {% for d in dias %}
+    <a href="?dia={{ d|date:'Y-m-d' }}" hx-get="?dia={{ d|date:'Y-m-d' }}"
+       class="shrink-0 rounded-lg border px-3 py-2 text-center text-sm {% if d == dia %}border-stone-900 bg-stone-900 text-white{% else %}border-stone-300 bg-white{% endif %}">
+      <span class="block font-semibold">{{ d|date:'D' }}</span>
+      <span class="block">{{ d|date:'d/m' }}</span>
+    </a>
+  {% endfor %}
+</nav>
+
+<h2 class="mt-4 mb-3 text-lg font-semibold">Horários em {{ dia|date:'l, d/m' }}</h2>
+{% if horarios %}
+  <ul class="grid grid-cols-3 gap-2 sm:grid-cols-4">
+    {% for horario in horarios %}
+      <li>
+        <a href="{% url 'agenda:confirmar_agendamento' negocio.slug servico.pk %}?inicio={{ horario|date:'Y-m-d\TH:i' }}"
+           class="block rounded-lg border border-stone-300 bg-white py-2 text-center font-medium hover:border-stone-900">
+          {{ horario|time:'H:i' }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="text-stone-500">Nenhum horário livre neste dia.</p>
+{% endif %}

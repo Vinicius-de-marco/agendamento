@@ -1,0 +1,37 @@
+{% extends 'agenda/base.html' %}
+
+{% block titulo %}Confirmar agendamento – {{ negocio.nome }}{% endblock %}
+
+{% block conteudo %}
+<a href="{% url 'agenda:escolher_horario' negocio.slug servico.pk %}?dia={{ inicio|date:'Y-m-d' }}"
+   class="text-sm text-stone-500 hover:underline">← Trocar horário</a>
+
+<h1 class="mt-2 text-2xl font-bold">Confirmar agendamento</h1>
+<div class="mt-4 rounded-xl bg-white px-4 py-3 shadow-sm">
+  <p class="font-medium">{{ servico.nome }} · R$ {{ servico.preco }}</p>
+  <p class="text-stone-600">{{ inicio|date:'l, d/m/Y' }} às {{ inicio|time:'H:i' }} ({{ servico.duracao_formatada }})</p>
+  <p class="text-sm text-stone-500">{{ negocio.nome }}</p>
+</div>
+
+<form method="post" class="mt-6 space-y-4">
+  {% csrf_token %}
+  {% if form.non_field_errors %}
+    <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+      {% for erro in form.non_field_errors %}<p>{{ erro }}</p>{% endfor %}
+      <a href="{% url 'agenda:escolher_horario' negocio.slug servico.pk %}?dia={{ inicio|date:'Y-m-d' }}" class="font-semibold underline">Ver horários livres</a>
+    </div>
+  {% endif %}
+  {{ form.inicio }}
+  {% for campo in form.visible_fields %}
+    <div>
+      <label for="{{ campo.id_for_label }}" class="block text-sm font-medium">{{ campo.label }}</label>
+      {{ campo }}
+      {% if campo.help_text %}<p class="mt-1 text-xs text-stone-500">{{ campo.help_text }}</p>{% endif %}
+      {% for erro in campo.errors %}<p class="mt-1 text-sm text-red-700">{{ erro }}</p>{% endfor %}
+    </div>
+  {% endfor %}
+  <button type="submit" class="w-full rounded-full bg-stone-900 py-3 font-semibold text-white hover:bg-stone-700">
+    Confirmar agendamento
+  </button>
+</form>
+{% endblock %}

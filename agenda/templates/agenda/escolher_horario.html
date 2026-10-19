@@ -1,0 +1,18 @@
+{% extends 'agenda/base.html' %}
+
+{% block titulo %}Agendar {{ servico.nome }} – {{ negocio.nome }}{% endblock %}
+
+{% block conteudo %}
+<a href="{% url 'agenda:pagina_negocio' negocio.slug %}" class="text-sm text-stone-500 hover:underline">← {{ negocio.nome }}</a>
+
+<h1 class="mt-2 text-2xl font-bold">{{ servico.nome }}</h1>
+<p class="text-stone-600">{{ servico.duracao_formatada }} · R$ {{ servico.preco }}</p>
+
+{% if dias %}
+  <div id="horarios" class="mt-6">
+    {% include 'agenda/_horarios.html' %}
+  </div>
+{% else %}
+  <p class="mt-6 text-stone-500">Não há dias disponíveis para agendamento no momento.</p>
+{% endif %}
+{% endblock %}

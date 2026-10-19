@@ -27,7 +27,13 @@
             <p class="font-medium">{{ servico.nome }}</p>
             <p class="text-sm text-stone-500">{{ servico.duracao_formatada }}</p>
           </div>
-          <p class="font-semibold">R$ {{ servico.preco }}</p>
+          <div class="flex items-center gap-3">
+            <p class="font-semibold">R$ {{ servico.preco }}</p>
+            <a href="{% url 'agenda:escolher_horario' negocio.slug servico.pk %}"
+               class="rounded-full bg-stone-900 px-4 py-1.5 text-sm font-semibold text-white hover:bg-stone-700">
+              Agendar
+            </a>
+          </div>
         </li>
       {% endfor %}
     </ul>
