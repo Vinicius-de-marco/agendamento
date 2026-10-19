@@ -11,13 +11,23 @@ validar_whatsapp = RegexValidator(
     'Informe o WhatsApp só com dígitos, com DDI e DDD (ex: 5511999998888).',
 )
 
+# Prefixos de URL do próprio sistema que não podem virar link de negócio
+SLUGS_RESERVADOS = {'admin', 'static', 'media', 'painel', 'conta', 'api', 'login', 'logout'}
+
+
+def validar_slug_livre(valor):
+    if valor.lower() in SLUGS_RESERVADOS:
+        raise ValidationError('Este link é reservado pelo sistema. Escolha outro.')
+
 
 class Negocio(models.Model):
     dono = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='negocios'
     )
     nome = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True, help_text='Usado no link público: /<slug>/')
+    slug = models.SlugField(
+        unique=True, validators=[validar_slug_livre], help_text='Usado no link público: /<slug>/'
+    )
     whatsapp = models.CharField(max_length=13, validators=[validar_whatsapp])
     endereco = models.CharField('endereço', max_length=200, blank=True)
     descricao = models.TextField('descrição', blank=True)
@@ -29,6 +39,10 @@ class Negocio(models.Model):
 
     def __str__(self):
         return self.nome
+
+    @property
+    def link_whatsapp(self):
+        return f'https://wa.me/{self.whatsapp}'
 
 
 class Servico(models.Model):
@@ -52,6 +66,14 @@ class Servico(models.Model):
 
     def __str__(self):
         return self.nome
+
+    @property
+    def duracao_formatada(self):
+        """Ex: 30 → '30 min', 60 → '1h', 90 → '1h30'."""
+        horas, minutos = divmod(self.duracao_minutos, 60)
+        if not horas:
+            return f'{minutos} min'
+        return f'{horas}h{minutos:02d}' if minutos else f'{horas}h'
 
 
 class HorarioFuncionamento(models.Model):

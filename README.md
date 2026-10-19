@@ -15,7 +15,9 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Acesse http://127.0.0.1:8000/. O banco em desenvolvimento é SQLite (`db.sqlite3`).
+O admin fica em http://127.0.0.1:8000/admin/ (crie um usuário com `python manage.py createsuperuser`).
+A página pública de cada negócio fica em http://127.0.0.1:8000/<slug-do-negocio>/ (a raiz `/` ainda não tem página).
+O banco em desenvolvimento é SQLite (`db.sqlite3`).
 
 ## Verificação
 

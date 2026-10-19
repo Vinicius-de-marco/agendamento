@@ -1,0 +1,55 @@
+{% extends 'agenda/base.html' %}
+
+{% block titulo %}{{ negocio.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="mb-8 text-center">
+  <h1 class="text-3xl font-bold">{{ negocio.nome }}</h1>
+  {% if negocio.descricao %}
+    <p class="mt-2 text-stone-600">{{ negocio.descricao|linebreaksbr }}</p>
+  {% endif %}
+  {% if negocio.endereco %}
+    <p class="mt-2 text-sm text-stone-500">{{ negocio.endereco }}</p>
+  {% endif %}
+  <a href="{{ negocio.link_whatsapp }}" target="_blank" rel="noopener"
+     class="mt-4 inline-block rounded-full bg-green-600 px-5 py-2 text-sm font-semibold text-white hover:bg-green-700">
+    Falar no WhatsApp
+  </a>
+</header>
+
+<section class="mb-8">
+  <h2 class="mb-3 text-lg font-semibold">Serviços</h2>
+  {% if servicos %}
+    <ul class="divide-y divide-stone-200 rounded-xl bg-white shadow-sm">
+      {% for servico in servicos %}
+        <li class="flex items-center justify-between px-4 py-3">
+          <div>
+            <p class="font-medium">{{ servico.nome }}</p>
+            <p class="text-sm text-stone-500">{{ servico.duracao_formatada }}</p>
+          </div>
+          <p class="font-semibold">R$ {{ servico.preco }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-stone-500">Nenhum serviço disponível no momento.</p>
+  {% endif %}
+</section>
+
+{% if horarios %}
+  <section>
+    <h2 class="mb-3 text-lg font-semibold">Horário de funcionamento</h2>
+    {% regroup horarios by get_dia_semana_display as dias %}
+    <dl class="rounded-xl bg-white px-4 py-3 shadow-sm">
+      {% for dia in dias %}
+        <div class="flex justify-between py-1">
+          <dt>{{ dia.grouper }}</dt>
+          <dd class="text-stone-600">
+            {% for faixa in dia.list %}{{ faixa.abertura|time:"H:i" }}–{{ faixa.fechamento|time:"H:i" }}{% if not forloop.last %}, {% endif %}{% endfor %}
+          </dd>
+        </div>
+      {% endfor %}
+    </dl>
+  </section>
+{% endif %}
+{% endblock %}
