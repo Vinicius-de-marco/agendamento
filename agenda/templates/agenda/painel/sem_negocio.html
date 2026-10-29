@@ -1,0 +1,12 @@
+{% extends 'agenda/base.html' %}
+
+{% block titulo %}Painel{% endblock %}
+
+{% block conteudo %}
+<h1 class="text-xl font-bold">Nenhum negócio cadastrado</h1>
+<p class="mt-2 text-stone-600">Sua conta ainda não tem um negócio. Peça ao administrador para cadastrá-lo.</p>
+<form method="post" action="{% url 'logout' %}" class="mt-4">
+  {% csrf_token %}
+  <button type="submit" class="text-sm text-stone-500 hover:underline">Sair</button>
+</form>
+{% endblock %}

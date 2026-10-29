@@ -126,6 +126,28 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 
+# Login do painel do dono
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'painel:agenda'
+LOGOUT_REDIRECT_URL = 'login'
+
+
+# WhatsApp (lembretes e avisos)
+
+# Classe que envia as mensagens; o padrão só escreve no log (veja agenda/whatsapp.py)
+WHATSAPP_BACKEND = os.getenv('WHATSAPP_BACKEND') or 'agenda.whatsapp.ConsoleBackend'
+# Endereço público do site, usado nos links enviados por WhatsApp
+SITE_URL = (os.getenv('SITE_URL') or 'http://127.0.0.1:8000').rstrip('/')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {'console': {'class': 'logging.StreamHandler'}},
+    'loggers': {'agenda': {'handlers': ['console'], 'level': 'INFO'}},
+}
+
+
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 

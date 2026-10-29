@@ -1,0 +1,27 @@
+{% extends 'agenda/base.html' %}
+
+{% block titulo %}Entrar no painel{% endblock %}
+
+{% block conteudo %}
+<h1 class="mb-6 text-center text-2xl font-bold">Entrar no painel</h1>
+
+<form method="post" class="space-y-4 rounded-xl bg-white p-6 shadow-sm">
+  {% csrf_token %}
+  {% if form.non_field_errors %}
+    <p class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">Usuário ou senha incorretos.</p>
+  {% endif %}
+  <input type="hidden" name="next" value="{{ next }}">
+  <div>
+    <label for="id_username" class="block text-sm font-medium">Usuário</label>
+    <input type="text" name="username" id="id_username" required autofocus autocomplete="username"
+           value="{{ form.username.value|default_if_none:'' }}"
+           class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 focus:border-stone-900 focus:outline-none">
+  </div>
+  <div>
+    <label for="id_password" class="block text-sm font-medium">Senha</label>
+    <input type="password" name="password" id="id_password" required autocomplete="current-password"
+           class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 focus:border-stone-900 focus:outline-none">
+  </div>
+  <button type="submit" class="w-full rounded-full bg-stone-900 py-3 font-semibold text-white hover:bg-stone-700">Entrar</button>
+</form>
+{% endblock %}

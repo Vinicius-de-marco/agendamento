@@ -1,0 +1,29 @@
+{% extends 'agenda/painel/base_painel.html' %}
+
+{% block titulo_painel %}Serviços{% endblock %}
+
+{% block painel %}
+<div class="mb-4 flex items-center justify-between">
+  <h1 class="text-lg font-semibold">Serviços</h1>
+  <a href="{% url 'painel:servico_novo' %}" class="rounded-full bg-stone-900 px-4 py-1.5 text-sm font-semibold text-white">+ Novo</a>
+</div>
+
+{% if servicos %}
+  <ul class="divide-y divide-stone-200 rounded-xl bg-white shadow-sm">
+    {% for servico in servicos %}
+      <li>
+        <a href="{% url 'painel:servico_editar' servico.pk %}" class="flex items-center justify-between px-4 py-3 hover:bg-stone-50 {% if not servico.ativo %}opacity-50{% endif %}">
+          <span>
+            <span class="block font-medium">{{ servico.nome }}{% if not servico.ativo %} (inativo){% endif %}</span>
+            <span class="block text-sm text-stone-500">{{ servico.duracao_formatada }}</span>
+          </span>
+          <span class="font-semibold">R$ {{ servico.preco }}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+  <p class="mt-2 text-xs text-stone-500">Para tirar um serviço da página pública, edite e desmarque "ativo".</p>
+{% else %}
+  <p class="text-stone-500">Nenhum serviço cadastrado.</p>
+{% endif %}
+{% endblock %}

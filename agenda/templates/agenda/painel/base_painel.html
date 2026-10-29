@@ -1,0 +1,32 @@
+{% extends 'agenda/base.html' %}
+
+{% block titulo %}{% block titulo_painel %}Painel{% endblock %} – {{ negocio.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="mb-6">
+  <div class="flex items-center justify-between">
+    <a href="{% url 'agenda:pagina_negocio' negocio.slug %}" class="font-bold hover:underline" target="_blank" rel="noopener">{{ negocio.nome }} ↗</a>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="text-sm text-stone-500 hover:underline">Sair</button>
+    </form>
+  </div>
+  {% url 'painel:agenda' as url_agenda %}{% url 'painel:servicos' as url_servicos %}{% url 'painel:horarios' as url_horarios %}{% url 'painel:bloqueios' as url_bloqueios %}
+  <nav class="mt-3 flex gap-1 overflow-x-auto text-sm">
+    <a href="{{ url_agenda }}" class="rounded-full px-3 py-1.5 {% if request.path == url_agenda %}bg-stone-900 text-white{% else %}bg-white{% endif %}">Agenda</a>
+    <a href="{{ url_servicos }}" class="rounded-full px-3 py-1.5 {% if request.path == url_servicos %}bg-stone-900 text-white{% else %}bg-white{% endif %}">Serviços</a>
+    <a href="{{ url_horarios }}" class="rounded-full px-3 py-1.5 {% if request.path == url_horarios %}bg-stone-900 text-white{% else %}bg-white{% endif %}">Horários</a>
+    <a href="{{ url_bloqueios }}" class="rounded-full px-3 py-1.5 {% if request.path == url_bloqueios %}bg-stone-900 text-white{% else %}bg-white{% endif %}">Bloqueios</a>
+  </nav>
+</header>
+
+{% if messages %}
+  <div class="mb-4 space-y-2">
+    {% for mensagem in messages %}
+      <p class="rounded-lg px-4 py-3 text-sm {% if mensagem.tags == 'error' %}bg-red-50 text-red-700{% elif mensagem.tags == 'warning' %}bg-amber-50 text-amber-800{% else %}bg-green-50 text-green-800{% endif %}">{{ mensagem }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% block painel %}{% endblock %}
+{% endblock %}

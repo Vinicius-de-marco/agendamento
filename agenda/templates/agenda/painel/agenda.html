@@ -1,0 +1,48 @@
+{% extends 'agenda/painel/base_painel.html' %}
+
+{% block titulo_painel %}Agenda {{ dia|date:'d/m' }}{% endblock %}
+
+{% block painel %}
+<div class="mb-4 flex items-center justify-between">
+  <a href="?dia={{ anterior|date:'Y-m-d' }}" class="rounded-full bg-white px-3 py-1.5 text-sm" aria-label="Dia anterior">←</a>
+  <div class="text-center">
+    <h1 class="text-lg font-semibold">{{ dia|date:'l, d/m/Y' }}</h1>
+    {% if dia != hoje %}<a href="?" class="text-xs text-stone-500 hover:underline">Ir para hoje</a>{% endif %}
+  </div>
+  <a href="?dia={{ proximo|date:'Y-m-d' }}" class="rounded-full bg-white px-3 py-1.5 text-sm" aria-label="Próximo dia">→</a>
+</div>
+
+{% for bloqueio in bloqueios %}
+  <p class="mb-2 rounded-lg bg-amber-50 px-4 py-2 text-sm text-amber-800">
+    Bloqueado {{ bloqueio.inicio|date:'d/m H:i' }} – {{ bloqueio.fim|date:'d/m H:i' }}{% if bloqueio.motivo %} · {{ bloqueio.motivo }}{% endif %}
+  </p>
+{% endfor %}
+
+{% if agendamentos %}
+  <ul class="divide-y divide-stone-200 rounded-xl bg-white shadow-sm">
+    {% for ag in agendamentos %}
+      <li class="px-4 py-3 {% if ag.status == 'cancelado' %}opacity-50{% endif %}">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="font-semibold">{{ ag.inicio|time:'H:i' }}–{{ ag.fim|time:'H:i' }} · {{ ag.servico.nome }}</p>
+            <p class="text-sm">{{ ag.cliente.nome }} · <a href="https://wa.me/{{ ag.cliente.whatsapp }}" target="_blank" rel="noopener" class="text-green-700 hover:underline">WhatsApp</a></p>
+          </div>
+          <span class="shrink-0 rounded-full px-2 py-0.5 text-xs {% if ag.status == 'confirmado' %}bg-green-100 text-green-800{% elif ag.status == 'cancelado' %}bg-stone-200 text-stone-600{% else %}bg-blue-100 text-blue-800{% endif %}">{{ ag.get_status_display }}</span>
+        </div>
+        {% if ag.status != 'cancelado' %}
+          <form method="post" action="{% url 'painel:alterar_status' ag.pk %}" class="mt-2 flex gap-3 text-sm">
+            {% csrf_token %}
+            {% if ag.status != 'confirmado' %}
+              <button name="status" value="confirmado" class="text-green-700 hover:underline">Confirmar</button>
+            {% endif %}
+            <button name="status" value="cancelado" class="text-red-700 hover:underline"
+                    onclick="return confirm('Cancelar o agendamento de {{ ag.cliente.nome|escapejs }}? Não dá para desfazer.')">Cancelar</button>
+          </form>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="text-stone-500">Nenhum agendamento neste dia.</p>
+{% endif %}
+{% endblock %}

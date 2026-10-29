@@ -17,4 +17,9 @@ urlpatterns = [
         name='confirmar_agendamento',
     ),
     path('<slug:slug>/agendado/', views.agendamento_concluido, name='agendamento_concluido'),
+    path(
+        '<slug:slug>/agendamento/<str:token>/',
+        views.gerenciar_agendamento,
+        name='gerenciar_agendamento',
+    ),
 ]

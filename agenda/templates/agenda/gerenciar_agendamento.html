@@ -1,0 +1,38 @@
+{% extends 'agenda/base.html' %}
+
+{% block titulo %}Seu horário – {{ agendamento.negocio.nome }}{% endblock %}
+
+{% block conteudo %}
+<div class="text-center">
+  <h1 class="text-2xl font-bold">Seu horário</h1>
+  <p class="mt-2 text-stone-600">{{ agendamento.cliente.nome }}, aqui estão os detalhes do seu agendamento.</p>
+</div>
+
+<div class="mt-6 rounded-xl bg-white px-4 py-3 shadow-sm">
+  <div class="flex items-start justify-between gap-2">
+    <p class="font-medium">{{ agendamento.servico.nome }} · R$ {{ agendamento.servico.preco }}</p>
+    <span class="shrink-0 rounded-full px-2 py-0.5 text-xs {% if agendamento.status == 'confirmado' %}bg-green-100 text-green-800{% elif agendamento.status == 'cancelado' %}bg-stone-200 text-stone-600{% else %}bg-blue-100 text-blue-800{% endif %}">{{ agendamento.get_status_display }}</span>
+  </div>
+  <p class="text-stone-600">{{ agendamento.inicio|date:'l, d/m/Y' }} às {{ agendamento.inicio|time:'H:i' }}</p>
+  <p class="text-sm text-stone-500">{{ agendamento.negocio.nome }}{% if agendamento.negocio.endereco %} · {{ agendamento.negocio.endereco }}{% endif %}</p>
+</div>
+
+{% if pode_alterar %}
+  <form method="post" class="mt-6 flex gap-3">
+    {% csrf_token %}
+    {% if agendamento.status == 'agendado' %}
+      <button name="acao" value="confirmar" class="flex-1 rounded-lg bg-stone-900 px-4 py-2 font-medium text-white hover:bg-stone-700">Confirmar presença</button>
+    {% endif %}
+    <button name="acao" value="cancelar" class="flex-1 rounded-lg border border-stone-300 bg-white px-4 py-2 font-medium text-red-700 hover:bg-red-50"
+            onclick="return confirm('Cancelar este horário? Não dá para desfazer.')">Cancelar horário</button>
+  </form>
+{% elif agendamento.status == 'cancelado' %}
+  <p class="mt-6 text-center text-stone-600">Este horário foi cancelado.</p>
+{% else %}
+  <p class="mt-6 text-center text-stone-600">Este horário já passou.</p>
+{% endif %}
+
+<div class="mt-6 text-center">
+  <a href="{% url 'agenda:pagina_negocio' agendamento.negocio.slug %}" class="text-sm text-stone-500 hover:underline">Agendar outro horário em {{ agendamento.negocio.nome }}</a>
+</div>
+{% endblock %}

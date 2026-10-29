@@ -1,0 +1,30 @@
+{% extends 'agenda/painel/base_painel.html' %}
+
+{% block titulo_painel %}Bloqueios{% endblock %}
+
+{% block painel %}
+<div class="mb-4 flex items-center justify-between">
+  <h1 class="text-lg font-semibold">Bloqueios</h1>
+  <a href="{% url 'painel:bloqueio_novo' %}" class="rounded-full bg-stone-900 px-4 py-1.5 text-sm font-semibold text-white">+ Novo</a>
+</div>
+
+{% if bloqueios %}
+  <ul class="divide-y divide-stone-200 rounded-xl bg-white shadow-sm">
+    {% for bloqueio in bloqueios %}
+      <li class="flex items-center justify-between gap-3 px-4 py-3">
+        <span>
+          <span class="block">{{ bloqueio.inicio|date:'d/m/Y H:i' }} – {{ bloqueio.fim|date:'d/m/Y H:i' }}</span>
+          {% if bloqueio.motivo %}<span class="block text-sm text-stone-500">{{ bloqueio.motivo }}</span>{% endif %}
+        </span>
+        <form method="post" action="{% url 'painel:bloqueio_excluir' bloqueio.pk %}"
+              onsubmit="return confirm('Remover este bloqueio? Os horários voltam a ficar livres.')">
+          {% csrf_token %}
+          <button type="submit" class="text-sm text-red-700 hover:underline">Remover</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="text-stone-500">Nenhum bloqueio atual ou futuro.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'agenda/painel/base_painel.html' %}
+
+{% block titulo_painel %}{{ titulo }}{% endblock %}
+
+{% block painel %}
+<a href="{% url voltar %}" class="text-sm text-stone-500 hover:underline">← Voltar</a>
+<h1 class="mt-2 mb-4 text-lg font-semibold">{{ titulo }}</h1>
+
+<form method="post" class="space-y-4">
+  {% csrf_token %}
+  {% if form.non_field_errors %}
+    <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+      {% for erro in form.non_field_errors %}<p>{{ erro }}</p>{% endfor %}
+    </div>
+  {% endif %}
+  {% for campo in form %}
+    <div>
+      {% if campo.widget_type == 'checkbox' %}
+        <label class="flex items-center gap-2">{{ campo }} {{ campo.label }}</label>
+      {% else %}
+        <label for="{{ campo.id_for_label }}" class="block text-sm font-medium">{{ campo.label|capfirst }}</label>
+        {{ campo }}
+      {% endif %}
+      {% if campo.help_text %}<p class="mt-1 text-xs text-stone-500">{{ campo.help_text }}</p>{% endif %}
+      {% for erro in campo.errors %}<p class="mt-1 text-sm text-red-700">{{ erro }}</p>{% endfor %}
+    </div>
+  {% endfor %}
+  <button type="submit" class="w-full rounded-full bg-stone-900 py-3 font-semibold text-white hover:bg-stone-700">Salvar</button>
+</form>
+{% endblock %}

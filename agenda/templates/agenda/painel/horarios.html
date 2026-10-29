@@ -1,0 +1,28 @@
+{% extends 'agenda/painel/base_painel.html' %}
+
+{% block titulo_painel %}Horários{% endblock %}
+
+{% block painel %}
+<div class="mb-4 flex items-center justify-between">
+  <h1 class="text-lg font-semibold">Horário de funcionamento</h1>
+  <a href="{% url 'painel:horario_novo' %}" class="rounded-full bg-stone-900 px-4 py-1.5 text-sm font-semibold text-white">+ Novo</a>
+</div>
+
+{% if horarios %}
+  <ul class="divide-y divide-stone-200 rounded-xl bg-white shadow-sm">
+    {% for horario in horarios %}
+      <li class="flex items-center justify-between px-4 py-3">
+        <span>{{ horario.get_dia_semana_display }} · {{ horario.abertura|time:'H:i' }}–{{ horario.fechamento|time:'H:i' }}</span>
+        <form method="post" action="{% url 'painel:horario_excluir' horario.pk %}"
+              onsubmit="return confirm('Remover este horário de funcionamento?')">
+          {% csrf_token %}
+          <button type="submit" class="text-sm text-red-700 hover:underline">Remover</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+  <p class="mt-2 text-xs text-stone-500">Para um intervalo (ex: almoço), cadastre duas faixas no mesmo dia: 09:00–12:00 e 13:00–18:00.</p>
+{% else %}
+  <p class="text-stone-500">Nenhum horário cadastrado. Sem horário, os clientes não conseguem agendar.</p>
+{% endif %}
+{% endblock %}

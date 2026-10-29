@@ -3,11 +3,14 @@ from datetime import date, timedelta
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.decorators.http import require_http_methods
 
 from .forms import AgendamentoForm
 from .horarios import horario_esta_livre, horarios_livres
+from .lembretes import STATUS_ATIVOS, avisar_dono, ler_token
 from .models import Agendamento, Cliente, Negocio, Servico
 
 # Quantos dias à frente o cliente pode agendar (contando hoje)
@@ -118,9 +121,11 @@ def _criar_agendamento(servico, dados):
         cliente, _ = Cliente.objects.update_or_create(
             negocio=negocio, whatsapp=dados['whatsapp'], defaults={'nome': dados['nome']}
         )
-        return Agendamento.objects.create(
+        agendamento = Agendamento.objects.create(
             negocio=negocio, servico=servico, cliente=cliente, inicio=dados['inicio']
         )
+        transaction.on_commit(lambda: avisar_dono(agendamento, 'Novo agendamento'))
+        return agendamento
 
 
 def agendamento_concluido(request, slug):
@@ -132,3 +137,46 @@ def agendamento_concluido(request, slug):
     if agendamento is None:
         return redirect('agenda:pagina_negocio', slug=slug)
     return render(request, 'agenda/agendamento_concluido.html', {'agendamento': agendamento})
+
+
+@require_http_methods(['GET', 'POST'])
+def gerenciar_agendamento(request, slug, token):
+    """Página do link do lembrete: o cliente confirma ou cancela o horário.
+
+    GET só mostra a página (pré-visualizações de link do WhatsApp fazem GET);
+    a ação acontece no POST.
+    """
+    agendamento = (
+        Agendamento.objects.select_related('negocio', 'servico', 'cliente')
+        .filter(pk=ler_token(token), negocio__slug=slug)
+        .first()
+    )
+    if agendamento is None:
+        raise Http404
+    pode_alterar = (
+        agendamento.status != Agendamento.Status.CANCELADO
+        and agendamento.inicio > timezone.now()
+    )
+
+    if request.method == 'POST' and pode_alterar:
+        # Updates condicionais: em cliques duplos ou simultâneos só um altera o status
+        # (e o dono recebe um só aviso); confirmar não desfaz um cancelamento
+        mesmo = Agendamento.objects.filter(pk=agendamento.pk)
+        acao = request.POST.get('acao')
+        if acao == 'confirmar':
+            mesmo.filter(status=Agendamento.Status.AGENDADO).update(
+                status=Agendamento.Status.CONFIRMADO
+            )
+        elif acao == 'cancelar':
+            cancelado = mesmo.filter(status__in=STATUS_ATIVOS).update(
+                status=Agendamento.Status.CANCELADO
+            )
+            if cancelado:
+                avisar_dono(agendamento, 'Agendamento cancelado pelo cliente')
+        return redirect('agenda:gerenciar_agendamento', slug=slug, token=token)
+
+    return render(
+        request,
+        'agenda/gerenciar_agendamento.html',
+        {'agendamento': agendamento, 'pode_alterar': pode_alterar},
+    )
